@@ -1,0 +1,120 @@
+note 36 C2
+
+abl 3
+tout à fond sauf accent
+
+ms
+7.698 cutoff
+1.223 decay
+
+float A = 2.243000;
+float B = 0.626000;
+float C = 0.364000;
+float D = 0.191000;
+float E = 4.462000;
+float base = -119.205002;
+float VaccMul = 2.000000;
+
+---------
+abl3 cutoff 50%
+le reste à fond sauf accent
+
+ms 
+float atkTime = -9.482000;
+float decTime = 1.223000;
+float fVco = 4.299000;
+float fRes = 1.000000;
+float fVmod = 1.000000;
+float fVacc_amt = 0.000000;
+float A = 2.243000;
+float B = 0.626000;
+float C = 0.284000;
+float D = 0.191000;
+float E = 4.462000;	
+float base = -119.205002;
+float VaccMul = 2.000000;
+Freq min 478.738281 Freq max 6163.681641
+
+
+---------
+ok pour cutoff 50% et 100%
+
+cutoff
+12 = 100%
+4.9 = 50%
+2.36 = 0%
+
+envmod
+1.0 = 100%
+0.283 = 50%
+0.099 = 0%
+
+float atkTime = -9.482000;
+float decTime = 1.223000;
+
+float fVco = 4.907000; = 50%, 100% = 12
+float fVco = 2.360000; = 0%
+
+float fRes = 1.000000;
+float fVmod = 1.000000;
+float fVacc_amt = 0.000000;
+float A = 1.633001;
+float B = 0.626000;
+float C = 0.324000;
+float D = 0.191000;
+float E = 4.462000;
+float base = -119.205002;
+float VaccMul = 2.000000;
+Freq min 356.454529 Freq max 6841.740234
+
+---------
+float atkTime = -9.482000;
+float decTime = 1.223000;
+float fRes = 1.000000;
+float fVmod = 1.000000;
+float fVacc_amt = 0.000000;
+float A = 1.633001;
+float B = 0.626000;
+float C = 0.324000;
+float D = 0.191000;
+float E = 4.462000;
+float base = -119.205002;
+float VaccMul = 2.000000;
+Freq min 127.451462 Freq max 3490.439941
+
+----
+fermeture après OK
+
+---------
+float atkTime = -9.482000;
+float decTime = 1.223000;
+float fVco = 12.000000;
+float fRes = 0.000000;
+float fVmod = 0.099000;
+float fVacc_amt = 0.000000;
+float A = 1.633001;
+float B = 0.626000;
+float C = 0.324000;
+float D = 0.191000;
+float E = 4.462000;
+float base = -119.205002;
+float VaccMul = 2.000000;
+Freq min 1461.269531 Freq max 2905.079834
+---------
+Freq min 1461.269531 Freq max 2905.079834
+DSP Deactivate
+---------
+float atkTime = -9.482000;
+float decTime = 1.223000;
+float fVco = 12.000000;
+float fRes = 0.000000;
+float fVmod = 0.099000;
+float fVacc_amt = 0.000000;
+float A = 1.633001;
+float B = 0.626000;
+float C = 0.324000;
+float D = 0.191000;
+float E = 4.462000;
+float base = -119.205002;
+float VaccMul = 2.000000;
+Freq min 1461.269531 Freq max 2905.079834

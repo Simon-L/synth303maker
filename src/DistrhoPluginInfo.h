@@ -10,7 +10,7 @@
    This is used to identify your plugin before a Plugin instance can be created.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_NAME "__DPFLABEL__"
+#define DISTRHO_PLUGIN_NAME "synth303maker"
 
 /**
    Number of audio inputs the plugin has.
@@ -22,13 +22,13 @@
    Number of audio outputs the plugin has.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_NUM_OUTPUTS 2
+#define DISTRHO_PLUGIN_NUM_OUTPUTS 4
 
 /**
    The plugin URI when exporting in LV2 format.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_URI "__DPFURI__"
+#define DISTRHO_PLUGIN_URI "unr:simonl:synth303maker"
 
 /**
    Whether the plugin has a custom %UI.
@@ -68,7 +68,7 @@
    Whether the plugin wants MIDI input.@n
    This is automatically enabled if @ref DISTRHO_PLUGIN_IS_SYNTH is true.
  */
-#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 0
+#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 1
 
 /**
    Whether the plugin wants MIDI output.
@@ -145,7 +145,7 @@
 
    When this macro is defined, the companion DISTRHO_UI_DEFAULT_HEIGHT macro must be defined as well.
  */
-#define DISTRHO_UI_DEFAULT_WIDTH 600
+#define DISTRHO_UI_DEFAULT_WIDTH 900
 
 /**
    Default UI height to use when creating initial and temporary windows.@n
@@ -156,7 +156,7 @@
 
    When this macro is defined, the companion DISTRHO_UI_DEFAULT_WIDTH macro must be defined as well.
  */
-#define DISTRHO_UI_DEFAULT_HEIGHT 400
+#define DISTRHO_UI_DEFAULT_HEIGHT 800
 
 /**
    Whether the %UI uses NanoVG for drawing instead of the default raw OpenGL calls.@n
