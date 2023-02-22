@@ -10,10 +10,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(NAME synth303maker)
 project(${NAME})
 
+set(CMAKE_VERBOSE_MAKEFILE on)
+
 add_subdirectory(dpf)
 
 dpf_add_plugin(${NAME}
-  TARGETS lv2 jack
+  TARGETS jack vst2 clap
   FILES_DSP
       src/PluginDSP.cpp
       src/synth303common.cpp
@@ -25,9 +27,7 @@ dpf_add_plugin(${NAME}
       implot/implot_items.cpp
       dpf-widgets/opengl/DearImGui.cpp)
 
-add_subdirectory(mingw-std-threads)
-target_link_libraries(${NAME} PRIVATE mingw-std-threads)
-target_include_directories(${NAME} PUBLIC mingw-compat)
+target_compile_definitions(${NAME} PUBLIC IMGUI_USER_CONFIG="synth303_imconfig.h")
 
 target_include_directories(${NAME} PUBLIC src)
 target_include_directories(${NAME} PUBLIC dpf-widgets/generic)
