@@ -16,6 +16,3 @@
 [submodule "chowdsp_wdf"]
 	path = chowdsp_wdf
 	url = https://github.com/Chowdhury-DSP/chowdsp_wdf
-[submodule "mingw-std-threads"]
-	path = mingw-std-threads
-	url = https://github.com/meganz/mingw-std-threads
