@@ -25,6 +25,10 @@ dpf_add_plugin(${NAME}
       implot/implot_items.cpp
       dpf-widgets/opengl/DearImGui.cpp)
 
+add_subdirectory(mingw-std-threads)
+target_link_libraries(${NAME} PRIVATE mingw-std-threads)
+target_include_directories(${NAME} PUBLIC mingw-compat)
+
 target_include_directories(${NAME} PUBLIC src)
 target_include_directories(${NAME} PUBLIC dpf-widgets/generic)
 target_include_directories(${NAME} PUBLIC dpf-widgets/opengl)
@@ -49,3 +53,4 @@ target_link_libraries(${NAME} PRIVATE chowdsp_lib)
 
 add_subdirectory(sst-filters)
 target_link_libraries(${NAME} PUBLIC sst-filters)
+
