@@ -38,8 +38,6 @@ jobs:
     steps:
       - name: Check update-alternatives threading
         run: |
-          update-alternatives --list i686-w64-mingw32-gcc
-          update-alternatives --list i686-w64-mingw32-g++
           update-alternatives --list x86_64-w64-mingw32-gcc
           update-alternatives --list x86_64-w64-mingw32-g++
       - uses: actions/checkout@v3
