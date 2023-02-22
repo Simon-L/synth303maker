@@ -14,6 +14,7 @@
 #include "WowFilter.h"
 #include "Osc303.hpp"
 #include "AcidFilter.hpp"
+#include "SlideFilter.hpp"
 
 #include <memory>
 
@@ -78,6 +79,7 @@ class PluginDSP : public Plugin
     Osc303 osc = Osc303();
     AcidFilter filter;
     WowFilter wowFilter;
+    SlideFilter slideFilter;
 
     float atkTime = -9.482;
     float decTime = -2.223;
@@ -368,6 +370,7 @@ protected:
         vca_env.activate(getSampleRate());
         vcf_env.activate(getSampleRate());
         wowFilter.prepare(getSampleRate());
+        slideFilter.prepare(getSampleRate());
 
         filter.prepare(getSampleRate(), 300.0, 0.66);
 
@@ -383,6 +386,10 @@ protected:
     // bool hiOrLo = false;
     bool gate;
     bool accent;
+    bool slide;
+
+    int nextGateOff = -1;
+    float note_cv;
    /**
       Run/process function for plugins without MIDI input.
       @note Some parameters might be null if there are no audio inputs or outputs.
@@ -407,23 +414,41 @@ protected:
             //     d_stdout("Blaaa");
             //     continue;
             // }
-            if (b0 == 0x90) { 
-                gate = true;
-                vcf_env.attackFrom(0.0f, 3, false, false); // from, shape, isDigital, isGated
-                vca_env.attackFrom(0.0f, 1, false, false); // from, shape, isDigital, isGated
-                accent = b2 > 100;
-                if (accent) d_stdout("Accent!");
-                float note_cv = (std::clamp((int)b1, 12, 72) - 12) / 12.0;
-                osc.setPitchCV(note_cv);
-                d_stdout("Note: %d CV %f", b1, note_cv);
+            if (b0 == 0x90) {
+                if (nextGateOff == -1) {
+                    d_stdout("Gate ON after rest, disable slide, nextGateOff is %d", b1);
+                    nextGateOff = b1;
+                    accent = b2 > 100;
+                    gate = true;
+                    slide = false;
+                    if (accent) d_stdout("Accent!");
+                    note_cv = (std::clamp((int)b1, 12, 72) - 12) / 12.0;
+                    vcf_env.attackFrom(0.0f, 3, false, false); // from, shape, isDigital, isGated
+                    vca_env.attackFrom(0.0f, 1, false, false); // from, shape, isDigital, isGated
+                } else {
+                    d_stdout("Gate ON Slide to %d, nextGateOff is %d", b1, b1);
+                    nextGateOff = b1;
+                    slide = true;
+                    note_cv = (std::clamp((int)b1, 12, 72) - 12) / 12.0;
+                }
+                // osc.setPitchCV(note_cv);
+                // d_stdout("Note: %d CV %f", b1, note_cv);
             }
-            if (b0 == 0x80) gate = false;
+            if (b0 == 0x80) {
+                if (b1 == nextGateOff) {
+                    d_stdout("Gate OFF (%d)", b1);
+                    gate = false;
+                    nextGateOff = -1;
+                } else {
+                    d_stdout("Ignored off for %d != %d", b1, nextGateOff);
+                }
+            }
 
             // gate = _gate;
             // bool _gate =  (0x90 & midiEvents[m].data[0]) ? true : false;
             // uint8_t note = midiEvents[m].data[1];
             // bool _accent = midiEvents[m].data[2] > 110 ? true : false;
-        }  
+        }
 
         wowFilter.setResonancePot(fRes);
 
@@ -443,6 +468,9 @@ protected:
             filter.calcCoeffs(freq, fRes);
             // }
 
+            slideFilter.processSample(note_cv);
+            osc.setPitchCV((slide ? slideFilter.lastSample : note_cv));
+
             osc.process(squareBuffer, sawBuffer, 4);
             float filt;
             // square
@@ -456,8 +484,8 @@ protected:
             const float gain = fSmoothGain->process(fGainLinear);
 
             outputs[0][i] = filt * lastVCAEnv * gain;
-            outputs[1][i] = Vacc;
-            outputs[2][i] = vcf_env.output;
+            outputs[1][i] = gate ? 1.0 : 0.0;
+            outputs[2][i] = (slide ? slideFilter.lastSample : note_cv) / 5.0;
             outputs[3][i] = freq/(getSampleRate() / 2.0);
         }
     }
