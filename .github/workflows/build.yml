@@ -45,6 +45,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           pawpaw: true
+          suffix: '-posix'
 
   # pluginval:
   #   runs-on: ubuntu-20.04
