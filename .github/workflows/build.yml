@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: ./.github/workflows/dpf-cmake-action.yml
+      - uses: Simon-L/dpf-cmake-action@v1
         with:
           target: ${{ matrix.target }}
           pawpaw: true
@@ -27,7 +27,7 @@ jobs:
   #     - uses: actions/checkout@v3
   #       with:
   #         submodules: recursive
-  #     - uses: ./.github/workflows/dpf-cmake-action.yml
+  #     - uses: Simon-L/dpf-cmake-action@v1
   #       with:
   #         target: ${{ matrix.target }}
   #         pawpaw: true
@@ -41,11 +41,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: ./.github/workflows/dpf-cmake-action.yml
+      - uses: Simon-L/dpf-cmake-action@v1
         with:
           target: ${{ matrix.target }}
           pawpaw: true
-          suffix: '-posix'
 
   # pluginval:
   #   runs-on: ubuntu-20.04
@@ -53,6 +52,6 @@ jobs:
   #     - uses: actions/checkout@v3
   #       with:
   #         submodules: recursive
-  #     - uses: ./.github/workflows/dpf-cmake-action.yml
+  #     - uses: Simon-L/dpf-cmake-action@v1
   #       with:
   #         target: pluginval
