@@ -29,6 +29,11 @@ dpf_add_plugin(${NAME}
 
 target_compile_definitions(${NAME} PUBLIC IMGUI_USER_CONFIG="synth303_imconfig.h")
 
+add_subdirectory(mingw-std-threads)
+target_link_libraries(${NAME} PRIVATE mingw-std-threads)
+target_include_directories(${NAME} PUBLIC mingw-std-threads)
+target_include_directories(${NAME} PUBLIC mingw-compat)
+
 target_include_directories(${NAME} PUBLIC src)
 target_include_directories(${NAME} PUBLIC dpf-widgets/generic)
 target_include_directories(${NAME} PUBLIC dpf-widgets/opengl)
