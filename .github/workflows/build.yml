@@ -16,7 +16,6 @@ jobs:
       - uses: distrho/dpf-cmake-action@v1
         with:
           target: ${{ matrix.target }}
-          pawpaw: true
 
   # macos:
   #   strategy:
