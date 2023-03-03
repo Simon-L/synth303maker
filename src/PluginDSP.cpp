@@ -20,6 +20,8 @@
 
 #include "synth303common.hpp"
 
+// --------------------------------------------------------------------------------------------------------------------
+
 #ifndef MIN
 #define MIN(a,b) ( (a) < (b) ? (a) : (b) )
 #endif
@@ -61,8 +63,10 @@ class PluginDSP : public Plugin
         kParamFormulaE,
         kParamFormulaBase,
         kParamFormulaVaccMul,
+        kParamFormulaVaccOffset,
         kParamFormulaLimiter,
         kParamPrintParameters,
+        kParamOutputLPFFreq,
         kParamCount
     };
 
@@ -80,23 +84,30 @@ class PluginDSP : public Plugin
     SlideFilter slideFilter;
 
     float atkTime = -9.482;
-    float decTime = -2.223;
+    float decTime = 1.223;
 
-    float fVco = 12.0;
+    float fVco = 7.604;
     float fRes = 1.0;
     float fVmod = 1.0;
     float fVacc_amt = 1.0;
 
-    float A = 1.633001;
-    float B = 0.626000;
-    float C = 0.324000;
-    float D = 0.191000;
-    float E = 4.462000;
-    float base = -119.205;
-    float VaccMul = 2.0;
+    float A = 0.0;
+    float B = 0.0;
+    float C = 0.0;
+    float D = 0.0;
+    float E = 0.0;
+    float base = 0.0;
+    float VaccMul = 0.0;
+    float VaccOffset = 0.0;
 
     sst::surgext_rack::dsp::envelopes::ADAREnvelope vca_env;
     sst::surgext_rack::dsp::envelopes::ADAREnvelope vcf_env;
+
+    float OutputLPFFreq = 25000.0;
+
+    // chowdsp::NthOrderFilter<float, 4, chowdsp::StateVariableFilterType::Lowpass> OutputLPF;
+    chowdsp::FirstOrderLPF< float > OutputLPF;
+    // juce::dsp::ProcessSpec spec;
 
 public:
    /**
@@ -162,9 +173,9 @@ protected:
             parameter.hints = kParameterIsOutput;
             return;
         case kParamCutoff:
-            parameter.ranges.min = 1.321f;
+            parameter.ranges.min = 0.0f;
             parameter.ranges.max = 12.0f;
-            parameter.ranges.def = 12.0f;
+            parameter.ranges.def = 7.604f;
             parameter.name = "Cutoff";
             return;
         case kParamResonance:
@@ -181,8 +192,8 @@ protected:
             return;
         case kParamDecay:
             parameter.ranges.min = -2.223f;
-            parameter.ranges.max = 1.32f;
-            parameter.ranges.def = -2.223f;
+            parameter.ranges.max = 1.223f;
+            parameter.ranges.def = 1.223f;
             parameter.name = "Decay";
             return;
         case kParamVcfAttack:
@@ -200,53 +211,65 @@ protected:
         // float A = 2.243000;
         case kParamFormulaA:
             parameter.ranges.min = 0.0;
-            parameter.ranges.max = 10.0;
-            parameter.ranges.def = 2.243;
+            parameter.ranges.max = 700.0;
+            parameter.ranges.def = 0.0;
             parameter.name = "A";
             return;
         // float B = 0.626000;
         case kParamFormulaB:
             parameter.ranges.min = 0.0;
-            parameter.ranges.max = 10.0;
-            parameter.ranges.def = 0.626;
+            parameter.ranges.max = 1400.0;
+            parameter.ranges.def = 0.0;
             parameter.name = "B";
             return;
         // float C = 0.364000;
         case kParamFormulaC:
             parameter.ranges.min = 0.0;
             parameter.ranges.max = 10.0;
-            parameter.ranges.def = 0.364;
+            parameter.ranges.def = 0.0;
             parameter.name = "C";
             return;
         // float D = 0.25;
         case kParamFormulaD:
             parameter.ranges.min = 0.0;
             parameter.ranges.max = 10.0;
-            parameter.ranges.def = 1.121;
+            parameter.ranges.def = 0.0;
             parameter.name = "D";
             return;
         // float E = 4.462000;
         case kParamFormulaE:
             parameter.ranges.min = 0.0;
             parameter.ranges.max = 10.0;
-            parameter.ranges.def = 4.462;
+            parameter.ranges.def = 0.0;
             parameter.name = "E";
             return;
         // float base = -119.205;
         case kParamFormulaBase:
             parameter.ranges.min = -200.0;
             parameter.ranges.max = 200.0;
-            parameter.ranges.def = -119.205;
+            parameter.ranges.def = 0.0;
             parameter.name = "base";
             return;
         case kParamFormulaVaccMul:
             parameter.ranges.min = 0.0;
             parameter.ranges.max = 20.0;
-            parameter.ranges.def = 2.0;
+            parameter.ranges.def = 0.0;
             parameter.name = "Vacc multiplier";
+            return;
+        case kParamFormulaVaccOffset:
+            parameter.ranges.min = -20.0;
+            parameter.ranges.max = 20.0;
+            parameter.ranges.def = 0.0;
+            parameter.name = "Vacc offset";
             return;
         case kParamFormulaLimiter:
             parameter.hints = kParameterIsOutput;
+            return;
+        case kParamOutputLPFFreq:
+            parameter.ranges.min = 100.0;
+            parameter.ranges.max = 48000.0;
+            parameter.ranges.def = 25000;
+            parameter.name = "Output HPF frequency";
             return;
         case kParamPrintParameters:
             parameter.name = "foo";
@@ -264,16 +287,44 @@ protected:
     float getParameterValue(uint32_t index) const override
     {
         switch (index) {
-        case kParamD:
-            return 0.314f;
         case kParamGain:
             return fGainDB;
+        case kParamCutoff:
+            return fVco;
+        case kParamResonance:
+            return fRes;
+        case kParamVmod:
+            return fVmod;
+        case kParamAccent:
+            return fVacc_amt;
+        case kParamDecay:
+            return decTime;
+        case kParamVcfAttack:
+            return atkTime;
+        case kParamFormulaA:
+            return A;
+        case kParamFormulaB:
+            return B;
+        case kParamFormulaC:
+            return C;
+        case kParamFormulaD:
+            return D;
+        case kParamFormulaE:
+            return E;
+        case kParamFormulaBase:
+            return base;
+        case kParamFormulaVaccMul:
+            return VaccMul;
+        case kParamFormulaVaccOffset:
+            return VaccOffset;
+        case kParamOutputLPFFreq:
+            return OutputLPFFreq;
         }
     }
 
     void print_limits() {
-        float freq_min = vcf_env_freq(0.0, fVco, fVmod, 0.0, A, B, C, D, E, base, VaccMul);
-        float freq_max = vcf_env_freq(1.01, fVco, fVmod, 0.0, A, B, C, D, E, base, VaccMul);
+        float freq_min = vcf_env_freq(0.0, fVco, fVmod, 0.0, A, B, C, D, E, base, VaccMul, VaccOffset);
+        float freq_max = vcf_env_freq(1.01, fVco, fVmod, 0.0, A, B, C, D, E, base, VaccMul, VaccOffset);
         d_stdout("Freq min %f Freq max %f", freq_min, freq_max);
     }
 
@@ -344,6 +395,14 @@ protected:
             VaccMul = value;
             d_stdout("DSP VaccMul %f", VaccMul);
             break;
+        case kParamFormulaVaccOffset:
+            VaccOffset = value;
+            d_stdout("DSP VaccOffset %f", VaccOffset);
+            break;
+        case kParamOutputLPFFreq:
+            OutputLPFFreq = value;
+            d_stdout("DSP OutputLPFFreq %f", OutputLPFFreq);
+            break;
         case kParamPrintParameters:
             printParameters();
             break;
@@ -372,7 +431,14 @@ protected:
 
         filter.prepare(getSampleRate(), 300.0, 0.66);
 
-        d_stdout("DSP Activate @ %.0fHz (%d samples)", getSampleRate(), getBufferSize());
+        // spec.sampleRate = getSampleRate();
+        // spec.numChannels = 1;
+        // OutputLPF.prepare(spec);
+        // OutputLPF.setCutoffFrequency(OutputLPFFreq);
+        OutputLPF.calcCoefs(OutputLPFFreq, getSampleRate());
+
+        d_stdout("DSP Activate Hey! @ %.0fHz (%d samples)", getSampleRate(), getBufferSize());
+        d_stdout("Output LPF @ %f ", OutputLPFFreq);
     }
 
     void deactivate() override
@@ -382,7 +448,7 @@ protected:
 
     // long int total_frames;
     // bool hiOrLo = false;
-    bool gate;
+    bool gate = false;
     bool accent;
     bool slide;
 
@@ -394,9 +460,6 @@ protected:
     */
     void run(const float** inputs, float** outputs, uint32_t frames, const MidiEvent* midiEvents, uint32_t midiEventCount) override
     {
-        // get the left and right audio inputs
-        const float* const inpL = inputs[0];
-        const float* const inpR = inputs[1];
 
         // get the left and right audio outputs
         float* const outL = outputs[0];
@@ -450,6 +513,7 @@ protected:
 
         wowFilter.setResonancePot(fRes);
 
+        OutputLPF.calcCoefs(OutputLPFFreq, getSampleRate());
         // apply gain against all samples
         for (uint32_t i=0; i < frames; ++i)
         {
@@ -458,7 +522,7 @@ protected:
             // if ((i % BLOCK_SIZE) == 0) {
                 // update coefs
             float Vacc = wowFilter.processSample(accent ? vcf_env.output * fVacc_amt : 0.0f);
-            float freq = vcf_env_freq(vcf_env.output, fVco, fVmod, Vacc, A, B, C, D, E, base, VaccMul);
+            float freq = vcf_env_freq(vcf_env.output, fVco, fVmod, Vacc, A, B, C, D, E, base, VaccMul, VaccOffset);
             if (freq >= (getSampleRate() / 2.0)) {
                 d_stdout("!!!!! limit freq %f", freq);
             }
@@ -476,14 +540,15 @@ protected:
             // saw
             filt = filter.processSample(sawBuffer);
 
-            vca_env.process(-10.2877, gate ? std::log2(10.0f) : -7.38f, 1, 1, false); // atk, dec, atk shape, dec shape, gate
+            vca_env.process(-10.2877, gate ? std::log2(4.0f) : -7.38f, 1, 1, false); // atk, dec, atk shape, dec shape, gate
 
             float lastVCAEnv = vca_env.output;
             const float gain = fSmoothGain->process(fGainLinear);
 
-            outputs[0][i] = filt * lastVCAEnv * gain;
+            outputs[0][i] = OutputLPF.processSample(filt * lastVCAEnv * gain);
+            // outputs[0][i] = 0, filt * lastVCAEnv * gain;
             outputs[1][i] = gate ? 1.0 : 0.0;
-            outputs[2][i] = (slide ? slideFilter.lastSample : note_cv) / 5.0;
+            outputs[2][i] = 0.0;
             outputs[3][i] = freq/(getSampleRate() / 2.0);
         }
     }

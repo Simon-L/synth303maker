@@ -16,7 +16,7 @@
    Number of audio inputs the plugin has.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_NUM_INPUTS 2
+#define DISTRHO_PLUGIN_NUM_INPUTS 0
 
 /**
    Number of audio outputs the plugin has.
@@ -28,7 +28,7 @@
    The plugin URI when exporting in LV2 format.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_URI "unr:simonl:synth303maker"
+#define DISTRHO_PLUGIN_URI "urn:simonl:synth303maker"
 
 /**
    Whether the plugin has a custom %UI.
@@ -223,7 +223,7 @@
 
    See http://lv2plug.in/ns/lv2core for more information.
  */
-#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:AmplifierPlugin"
+#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:InstrumentPlugin"
 
 /**
    Custom VST3 categories for the plugin.@n
